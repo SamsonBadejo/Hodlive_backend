@@ -1,7 +1,7 @@
 // controllers/sermonController.js   (ES module)
 
 import Sermon from "../models/Sermon.js";
-import { fetchYouTubeMeta } from "../../client/src/utils/youtube.js";
+import { fetchYouTubeMeta } from "../utils/youtube.js";
 
 export const createSermon = async (req, res) => {
   const { title, description, youtubeLink } = req.body;
