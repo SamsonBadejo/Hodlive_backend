@@ -1,21 +1,19 @@
 // middlewares/upload.js
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../cloudinary.js"; // path to the config above
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Store flyers in uploads/flyers
-    const dir = file.fieldname === "audio" ? "uploads/audio" : "uploads/flyers";
-
-    // Create the folder if it doesn't exist
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    // unique filename
-    cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: file.fieldname === "audio" ? "uploads/audio" : "uploads/flyers",
+      resource_type: file.fieldname === "audio" ? "auto" : "image",
+      allowed_formats: ["jpg", "png", "jpeg", "mp3", "mp4", "wav"],
+    };
   },
 });
 
-export default multer({ storage });
+const upload = multer({ storage });
+
+export default upload;

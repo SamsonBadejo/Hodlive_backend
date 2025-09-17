@@ -1,29 +1,39 @@
-// controllers/sermonController.js   (ES module)
-
 import Sermon from "../models/Sermon.js";
 import { fetchYouTubeMeta } from "../utils/youtube.js";
 
 export const createSermon = async (req, res) => {
-  const { title, description, youtubeLink } = req.body;
+  try {
+    const { title, description, youtubeLink } = req.body;
 
-  const audioUrl = req.file ? `/uploads/audio/${req.file.filename}` : null;
+    // Cloudinary URL for audio file (if uploaded)
+    const audioUrl = req.file ? req.file.path : null;
 
-  const youtubeThumb = youtubeLink ? await fetchYouTubeMeta(youtubeLink) : null;
+    // Fetch YouTube metadata (thumbnail etc.)
+    const youtubeThumb = youtubeLink ? await fetchYouTubeMeta(youtubeLink) : null;
 
-  const sermon = await Sermon.create({
-    title,
-    description,
-    youtubeLink,
-    youtubeThumb,
-    audioUrl,
-  });
+    const sermon = await Sermon.create({
+      title,
+      description,
+      youtubeLink,
+      youtubeThumb,
+      audioUrl,
+    });
 
-  res.status(201).json(sermon);
+    res.status(201).json(sermon);
+  } catch (error) {
+    console.error("Create sermon error:", error);
+    res.status(500).json({ message: "Server error while creating sermon" });
+  }
 };
 
 export const getSermons = async (_req, res) => {
-  const sermons = await Sermon.find().sort({ createdAt: -1 });
-  res.json(sermons);
+  try {
+    const sermons = await Sermon.find().sort({ createdAt: -1 });
+    res.json(sermons);
+  } catch (error) {
+    console.error("Get sermons error:", error);
+    res.status(500).json({ message: "Server error while fetching sermons" });
+  }
 };
 
 export const deleteSermon = async (req, res) => {
